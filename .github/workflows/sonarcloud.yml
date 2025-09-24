@@ -16,8 +16,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - run: npm install
-      - run: npm run build
+      - run: cd client && npm install      # install dependencies in client folder
+      - run: cd client && npm run build    # build React app in client folder
       - uses: SonarSource/sonarcloud-github-action@v2
         with:
           projectKey: SonarQube-React
