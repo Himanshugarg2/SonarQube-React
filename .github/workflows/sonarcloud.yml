@@ -15,15 +15,24 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
+
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - run: cd client && npm install
-      - run: cd client && npm run build
-      - uses: SonarSource/sonarcloud-github-action@v2
+          
+      - name: Install dependencies and build
+        run: |
+          cd client
+          npm install
+          npm run build
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
         with:
           args: >
-            -Dsonar.projectKey=SonarQube-React
+            -Dsonar.projectKey=Himanshugarg2_SonarQube-React
             -Dsonar.organization=himanshugarg2
             -Dsonar.sources=client/src
             -Dsonar.host.url=https://sonarcloud.io
