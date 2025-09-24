@@ -11,15 +11,19 @@ jobs:
   sonarcloud:
     name: SonarCloud Scan
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - run: cd client && npm install      # install dependencies in client folder
-      - run: cd client && npm run build    # build React app in client folder
+      - run: cd client && npm install
+      - run: cd client && npm run build
       - uses: SonarSource/sonarcloud-github-action@v2
         with:
-          projectKey: SonarQube-React
-          organization: himanshugarg2
-          token: ${{ secrets.SONAR_TOKEN }}
+          args: >
+            -Dsonar.projectKey=SonarQube-React
+            -Dsonar.organization=himanshugarg2
+            -Dsonar.sources=client/src
+            -Dsonar.host.url=https://sonarcloud.io
