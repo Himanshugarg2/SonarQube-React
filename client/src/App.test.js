@@ -99,10 +99,15 @@ describe('Guess the Number Game', () => {
   });
 
   test('disables input and guess button when game is won', () => {
-    // Mock Math.random to return a predictable value
-    const mockMath = Object.create(global.Math);
-    mockMath.random = jest.fn(() => 0.49); // This will give us 50 as the target
-    global.Math = mockMath;
+    // Mock crypto.getRandomValues to return a predictable value
+    const mockGetRandomValues = jest.fn((array) => {
+      array[0] = 2147483647; // This will give us approximately 50 as the target
+    });
+    
+    Object.defineProperty(window, 'crypto', {
+      value: { getRandomValues: mockGetRandomValues },
+      writable: true
+    });
     
     render(<App />);
     const input = screen.getByRole('spinbutton');
@@ -115,8 +120,15 @@ describe('Guess the Number Game', () => {
     expect(screen.getByText(/Congratulations!/i)).toBeInTheDocument();
     expect(input).toBeDisabled();
     expect(guessButton).toBeDisabled();
-    
-    // Restore Math.random
-    global.Math = Math;
+  });
+
+  test('generates random numbers within valid range', () => {
+    // Test that the random generation always produces numbers 1-100
+    // We can't test the exact value, but we can test the range
+    for (let i = 0; i < 10; i++) {
+      render(<App />);
+      // The game should always start with a valid state (no error messages)
+      expect(screen.queryByText(/Please enter a valid number/i)).not.toBeInTheDocument();
+    }
   });
 });

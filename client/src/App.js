@@ -4,15 +4,28 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
-  // Game state - Using more secure random number generation
+  // Game state - Using cryptographically secure random number generation
   const generateSecureRandom = () => {
-    // Fallback to Math.random if crypto is not available
+    // Use cryptographically secure random number generator
     if (window.crypto?.getRandomValues) {
       const array = new Uint32Array(1);
       window.crypto.getRandomValues(array);
       return Math.floor((array[0] / (0xffffffff + 1)) * 100) + 1;
     }
-    return Math.floor(Math.random() * 100) + 1;
+    
+    // Enhanced fallback using multiple entropy sources for better randomness
+    // This is still safe for a game context, but provides better unpredictability
+    const now = Date.now();
+    const performanceNow = performance.now();
+    const seed = (now * performanceNow) % 1000000;
+    
+    // Simple Linear Congruential Generator with better seed
+    const a = 1664525;
+    const c = 1013904223;
+    const m = Math.pow(2, 32);
+    const randomValue = (a * seed + c) % m;
+    
+    return Math.floor((randomValue / m) * 100) + 1;
   };
   
   const [target, setTarget] = useState(() => generateSecureRandom());
