@@ -22,10 +22,11 @@ jobs:
         with:
           node-version: '18'
           
-      - name: Install dependencies and build
+      - name: Install dependencies and run tests with coverage
         run: |
           cd client
           npm install
+          npm run test:coverage
           npm run build
 
       - name: SonarCloud Scan
@@ -34,5 +35,11 @@ jobs:
           args: >
             -Dsonar.projectKey=Himanshugarg2_SonarQube-React
             -Dsonar.organization=himanshugarg2
+            -Dsonar.projectName=SonarQube-React
+            -Dsonar.projectVersion=1.0
             -Dsonar.sources=client/src
+            -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.javascript.lcov.reportPaths=client/coverage/lcov.info
+            -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/build/**,**/*.test.js,**/*.spec.js
+            -Dsonar.coverage.exclusions=**/*.test.js,**/*.spec.js,**/setupTests.js,**/reportWebVitals.js,**/index.js
             -Dsonar.host.url=https://sonarcloud.io
