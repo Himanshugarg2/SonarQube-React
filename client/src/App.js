@@ -4,23 +4,38 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
-  // Game state
-  const [target, setTarget] = useState(() => Math.floor(Math.random() * 100) + 1);
+  // Game state - Using more secure random number generation
+  const generateSecureRandom = () => {
+    // Fallback to Math.random if crypto is not available
+    if (window.crypto?.getRandomValues) {
+      const array = new Uint32Array(1);
+      window.crypto.getRandomValues(array);
+      return Math.floor((array[0] / (0xffffffff + 1)) * 100) + 1;
+    }
+    return Math.floor(Math.random() * 100) + 1;
+  };
+  
+  const [target, setTarget] = useState(() => generateSecureRandom());
   const [guess, setGuess] = useState('');
   const [message, setMessage] = useState('');
   const [attempts, setAttempts] = useState(0);
 
   const handleInputChange = (e) => {
-    setGuess(e.target.value);
+    const value = e.target.value;
+    // Sanitize input - only allow numbers
+    if (value === '' || /^\d+$/.test(value)) {
+      setGuess(value);
+    }
   };
 
   const handleGuess = () => {
-    const numGuess = Number(guess);
-    if (!numGuess || numGuess < 1 || numGuess > 100) {
-      setMessage('Please enter a number between 1 and 100.');
+    const numGuess = parseInt(guess, 10);
+    // Enhanced input validation
+    if (!Number.isInteger(numGuess) || numGuess < 1 || numGuess > 100) {
+      setMessage('Please enter a valid number between 1 and 100.');
       return;
     }
-    setAttempts(attempts + 1);
+    setAttempts(prev => prev + 1);
     if (numGuess === target) {
       setMessage(`Congratulations! You guessed the number in ${attempts + 1} attempts.`);
     } else if (numGuess < target) {
@@ -31,7 +46,7 @@ function App() {
   };
 
   const handleRestart = () => {
-    setTarget(Math.floor(Math.random() * 100) + 1);
+    setTarget(generateSecureRandom());
     setGuess('');
     setMessage('');
     setAttempts(0);

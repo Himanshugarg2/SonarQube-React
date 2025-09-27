@@ -16,7 +16,7 @@ describe('Guess the Number Game', () => {
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '200' } });
     fireEvent.click(screen.getByRole('button', { name: /Guess/i }));
-    expect(screen.getByText(/Please enter a number between 1 and 100/i)).toBeInTheDocument();
+    expect(screen.getByText(/Please enter a valid number between 1 and 100/i)).toBeInTheDocument();
   });
 
   test('shows error for input below range', () => {
@@ -24,7 +24,7 @@ describe('Guess the Number Game', () => {
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '0' } });
     fireEvent.click(screen.getByRole('button', { name: /Guess/i }));
-    expect(screen.getByText(/Please enter a number between 1 and 100/i)).toBeInTheDocument();
+    expect(screen.getByText(/Please enter a valid number between 1 and 100/i)).toBeInTheDocument();
   });
 
   test('shows error for empty input', () => {
@@ -32,7 +32,24 @@ describe('Guess the Number Game', () => {
     const input = screen.getByRole('spinbutton');
     fireEvent.change(input, { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: /Guess/i }));
-    expect(screen.getByText(/Please enter a number between 1 and 100/i)).toBeInTheDocument();
+    expect(screen.getByText(/Please enter a valid number between 1 and 100/i)).toBeInTheDocument();
+  });
+
+  test('prevents non-numeric input', () => {
+    render(<App />);
+    const input = screen.getByRole('spinbutton');
+    
+    // Try to enter non-numeric characters
+    fireEvent.change(input, { target: { value: 'abc' } });
+    expect(input).toHaveValue(null); // Should remain empty
+    
+    // Try to enter special characters
+    fireEvent.change(input, { target: { value: '!@#' } });
+    expect(input).toHaveValue(null); // Should remain empty
+    
+    // Valid numeric input should work
+    fireEvent.change(input, { target: { value: '50' } });
+    expect(input).toHaveValue(50);
   });
 
   test('shows feedback for wrong guess', () => {
